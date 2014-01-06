@@ -15,10 +15,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public class RegionCreateCommand extends BaseCommand {
+public class RegionSaveCommand extends BaseCommand {
 
-	public RegionCreateCommand(SubdivisionPlugin plugin) {
-		super(plugin,"create", new String[] {"new", "define"}, "subdivision.command.region.create", new String[] {"Region Create Help"});
+	public RegionSaveCommand(SubdivisionPlugin plugin) {
+		super(plugin,"save", new String[] {"redefine"}, "subdivision.command.region.save", new String[] {"Region Save Help"});
 	}
 
 	@Override
@@ -31,16 +31,24 @@ public class RegionCreateCommand extends BaseCommand {
 		if (!selection.isValid()) {
 			throw new CommandError("You do not have a valid selection.");
 		}
+		if (selection.getRegionId() == null) {
+			throw new CommandError("You do not have a region selected.");
+		}
 		Location min = selection.getMin();
 		Location max = selection.getMax();
 		Bounds bounds = new Bounds(min.getBlockX(), min.getBlockY(), min.getBlockZ(), max.getBlockX(), max.getBlockY(), max.getBlockZ());
 		RegionData data = new RegionData(selection.getWorld(), bounds);
 		GlobalRegion gr = plugin.getRegionManager().getGlobalRegion(selection.getWorld().getUID());
 		List<Region> overlapping = gr.search(data.getBounds());
+		Region selectedRegion = plugin.getRegionManager().getById(selection.getRegionId());
+		plugin.debug("Overlapping: " + overlapping.size() + ", contains selected?: " + overlapping.contains(selectedRegion));
+		plugin.debug("Removed: " + overlapping.remove(selectedRegion));
+		plugin.debug("Overlapping: " + overlapping.size());
 		if (!overlapping.isEmpty()) {
+
 			// might be in an illegal spot
-			if (overlapping.size() > 1 ||
-				overlapping.get(0).getBounds().insersects(data.getBounds())) {
+			if (overlapping.size() > 1 || (overlapping.size() == 1 &&
+					overlapping.get(0).getBounds().insersects(data.getBounds()))) {
 				// can't cross borders.
 				throw new CommandError("Your selection crosses an existing border");
 			}
@@ -53,9 +61,9 @@ public class RegionCreateCommand extends BaseCommand {
 				throw new CommandError("Your selection is within a region you do not own.");
 			}
 		}
-		Region region = new Region(plugin, data);
-		region.addOwner(player);
-		plugin.getRegionManager().add(region);
+		Region region = plugin.getRegionManager().getById(selection.getRegionId());
+		region.adjustBounds(selection.getBounds());
+		plugin.getRegionManager().add(plugin.getRegionManager().remove(region));
 		try {
 			plugin.getDatastore().saveRegion(region.getRegionData());
 		} catch (DatastoreException e) {

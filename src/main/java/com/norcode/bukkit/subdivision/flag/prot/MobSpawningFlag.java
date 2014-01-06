@@ -9,7 +9,6 @@ public class MobSpawningFlag extends ProtectionFlag {
 
 	private MobSpawningFlag() {
 		super("mobspawning", "Mob spawning");
-			Flag.register(flag);
 	}
 
 }

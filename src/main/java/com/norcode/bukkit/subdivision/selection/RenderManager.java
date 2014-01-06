@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 import java.util.LinkedList;
 
 public class RenderManager implements Runnable {
-	int MAX_OPS = 10;
+	int MAX_OPS = 20;
 	private LinkedList<Renderer> renderers = new LinkedList<Renderer>();
 	private SubdivisionPlugin plugin;
 

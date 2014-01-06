@@ -20,7 +20,8 @@ public abstract class ProtectionFlag extends Flag<RegionProtectionState> {
 
 	@Override
 	public String serializeValue(Object value) {
-		return ((RegionProtectionState) value).name();
+		RegionProtectionState state = ((RegionProtectionState) value);
+		return state == null?null:state.name();
 	}
 
 	@Override

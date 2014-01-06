@@ -1,6 +1,7 @@
 package com.norcode.bukkit.subdivision.listener;
 
 import com.norcode.bukkit.subdivision.SubdivisionPlugin;
+import com.norcode.bukkit.subdivision.flag.perm.ButtonsFlag;
 import com.norcode.bukkit.subdivision.flag.prot.ExplosionFlag;
 import com.norcode.bukkit.subdivision.flag.prot.PistonFlag;
 import com.norcode.bukkit.subdivision.flag.perm.BuildingFlag;
@@ -17,10 +18,14 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Painting;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -32,21 +37,47 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
+import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.vehicle.VehicleCreateEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 public class ProtectionListener implements Listener {
+
 	private SubdivisionPlugin plugin;
 
-	public ProtectionListener(SubdivisionPlugin plugin) {
-		this.plugin = plugin;
+	private static EnumSet<EntityType> ANIMALS = EnumSet.of(
+			EntityType.CHICKEN, EntityType.COW, EntityType.HORSE, EntityType.MUSHROOM_COW,
+			EntityType.OCELOT, EntityType.WOLF, EntityType.PIG, EntityType.SHEEP, EntityType.VILLAGER);
+
+	private static HashSet<PotionEffectType> HARMFUL_POTIONS = new HashSet<PotionEffectType>();
+	static {
+		HARMFUL_POTIONS.add(PotionEffectType.POISON);
+		HARMFUL_POTIONS.add(PotionEffectType.BLINDNESS);
+		HARMFUL_POTIONS.add(PotionEffectType.CONFUSION);
+		HARMFUL_POTIONS.add(PotionEffectType.HARM);
+		HARMFUL_POTIONS.add(PotionEffectType.SLOW);
+		HARMFUL_POTIONS.add(PotionEffectType.SLOW_DIGGING);
+		HARMFUL_POTIONS.add(PotionEffectType.HUNGER);
+		HARMFUL_POTIONS.add(PotionEffectType.WEAKNESS);
+		HARMFUL_POTIONS.add(PotionEffectType.WITHER);
 	}
+
+	public static EnumSet<Material> BUTTONS = EnumSet.of(
+		Material.STONE_BUTTON, Material.WOOD_BUTTON, Material.LEVER, Material.DIODE_BLOCK_OFF,
+		Material.DIODE_BLOCK_ON, Material.REDSTONE_COMPARATOR_OFF, Material.REDSTONE_COMPARATOR_ON,
+		Material.BEACON);
 
 	public static EnumSet<Material> ALLOWED_FARMING_BLOCKBREAKS = EnumSet.of(
 		Material.COCOA, Material.MELON_BLOCK, Material.MELON_STEM, Material.PUMPKIN_STEM, Material.PUMPKIN,
@@ -61,12 +92,26 @@ public class ProtectionListener implements Listener {
 		ALLOWED_FARMING_BLOCKPLACES.remove(Material.MELON_BLOCK);
 	}
 
+
+	public ProtectionListener(SubdivisionPlugin plugin) {
+		this.plugin = plugin;
+	}
+
+
+	private boolean isButton(Block clickedBlock) {
+		return BUTTONS.contains(clickedBlock.getType());
+	}
+
 	private boolean isBreakingCrop(Material blockType) {
 		return ALLOWED_FARMING_BLOCKBREAKS.contains(blockType);
 	}
 
 	public boolean isPlacingCrop(Material blockType) {
 		return ALLOWED_FARMING_BLOCKPLACES.contains(blockType);
+	}
+
+	private boolean isAnimal(EntityType entityType) {
+		return ANIMALS.contains(entityType);
 	}
 
 	@EventHandler
@@ -88,7 +133,6 @@ public class ProtectionListener implements Listener {
 			}
 		}
 	}
-
 
 	@EventHandler
 	public void onPistonRetract(BlockPistonRetractEvent event) {
@@ -146,20 +190,38 @@ public class ProtectionListener implements Listener {
 
 	@EventHandler(ignoreCancelled=true)
 	public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
-		if (event.getEntity() instanceof Player) {
-			Player player = null;
-			if (event.getDamager() instanceof Player) {
-				player = (Player) event.getDamager();
-			} else if (event.getDamager() instanceof Projectile) {
-				if (((Projectile) event.getDamager()).getShooter() instanceof Player) {
-					player = (Player) ((Projectile) event.getDamager()).getShooter();
-				}
+		Player attacker = null;
+
+		if (event.getDamager() instanceof Player) {
+			attacker = (Player) event.getDamager();
+		} else if (event.getDamager() instanceof Projectile) {
+			if (((Projectile) event.getDamager()).getShooter() instanceof Player) {
+				attacker = (Player) ((Projectile) event.getDamager()).getShooter();
 			}
-			if (player != null) {
-				Region r = plugin.getRegionManager().getRegion(event.getEntity().getLocation());
-				if (!r.allows(PVPFlag.flag, player)) {
+		}
+		Region r = plugin.getRegionManager().getRegion(event.getEntity().getLocation());
+		if (attacker != null) {
+			if (event.getEntityType() == EntityType.PLAYER) {
+				if (!r.allows(PVPFlag.flag, attacker)) {
 					event.setCancelled(true);
-					player.sendMessage(ChatColor.RED + "You do not have PVP permissions here!");
+					attacker.sendMessage(ChatColor.RED + "You do not have PVP permissions here!");
+				}
+			} else if (isAnimal(event.getEntityType())) {
+				if (event.getEntity() instanceof Tameable) {
+					Tameable t = (Tameable) event.getEntity();
+					// Wolves and Ocelots are protected by the farming flag if tamed,
+					// but not if it's the animal's owner doing the attacking... that is allowed.
+					// we protected horses tamed or not.
+					if (event.getEntityType() == EntityType.WOLF || event.getEntityType() == EntityType.OCELOT) {
+						if ((t.getOwner() != null && t.getOwner().getName().equals(attacker.getName())) || !t.isTamed()) {
+							return;
+						}
+					}
+
+				}
+				if (!r.allows(FarmingFlag.flag, attacker)) {
+					event.setCancelled(true);
+					attacker.sendMessage(ChatColor.RED + "You do not have Farming permissions here!");
 				}
 			}
 		}
@@ -190,6 +252,38 @@ public class ProtectionListener implements Listener {
 				if (!region.allows(BuildingFlag.flag, player)) {
 					event.setCancelled(true);
 				}
+			}
+		}
+	}
+
+	@EventHandler
+	public void onPotionSplash(PotionSplashEvent event) {
+
+		boolean isHarmful = false;
+		boolean hitPlayer = false;
+
+		Entity thrower = event.getPotion().getShooter();
+
+		if (thrower instanceof Player) {
+			Iterator<LivingEntity> it = event.getAffectedEntities().iterator();
+			while (it.hasNext()) {
+				LivingEntity e = it.next();
+				if (e instanceof Player && !e.equals(thrower)) {
+					Region r = plugin.getRegionManager().getRegion(e.getLocation());
+					if (!r.allows(PVPFlag.flag, (Player) thrower)) {
+						it.remove();
+					}
+				}
+			}
+		}
+	}
+
+	@EventHandler(ignoreCancelled=true)
+	public void onPlayerInteractEvent(PlayerInteractEvent event) {
+		if (isButton(event.getClickedBlock())) {
+			Region r = plugin.getRegionManager().getRegion(event.getClickedBlock().getLocation());
+			if (!r.allows(ButtonsFlag.flag, event.getPlayer())) {
+				event.setCancelled(true);
 			}
 		}
 	}
@@ -226,6 +320,8 @@ public class ProtectionListener implements Listener {
 						event.setCancelled(true);
 					}
 				}
+			}
+
 		}
 	}
 }

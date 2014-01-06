@@ -16,7 +16,7 @@ import java.util.List;
 public class RegionSetCommand extends BaseCommand {
 
 	public RegionSetCommand(SubdivisionPlugin plugin) {
-		super(plugin,"set", new String[] {}, "subdivisions.command.region.set", new String[] {"Region Set Help"});
+		super(plugin,"set", new String[] {}, "subdivision.command.region.set", new String[] {"Region Set Help"});
 		registerSubcommand(new SetFlagCommand(plugin));
 	}
 

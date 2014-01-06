@@ -3,14 +3,12 @@ package com.norcode.bukkit.subdivision.region;
 
 import com.norcode.bukkit.subdivision.SubdivisionPlugin;
 import com.norcode.bukkit.subdivision.datastore.DatastoreException;
-import com.norcode.bukkit.subdivision.flag.perm.BuildingFlag;
-import com.norcode.bukkit.subdivision.flag.perm.PVPFlag;
+import com.norcode.bukkit.subdivision.datastore.RegionData;
+import com.norcode.bukkit.subdivision.flag.Flag;
 import com.norcode.bukkit.subdivision.flag.perm.PermissionFlag;
 import com.norcode.bukkit.subdivision.flag.perm.RegionPermissionState;
 import com.norcode.bukkit.subdivision.rtree.Bounded;
 import com.norcode.bukkit.subdivision.rtree.Bounds;
-import com.norcode.bukkit.subdivision.datastore.RegionData;
-import com.norcode.bukkit.subdivision.flag.Flag;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -55,6 +53,32 @@ public class Region implements Bounded {
 			}
 		}
 	}
+
+	public void adjustBounds(Bounds bounds) {
+		this.minX = bounds.getX1();
+		this.minY = bounds.getY1();
+		this.minZ = bounds.getZ1();
+		this.maxX = bounds.getX2();
+		this.maxY = bounds.getY2();
+		this.maxZ = bounds.getZ2();
+	}
+
+	public int getWidth() {
+		return 1+(this.maxX - this.minX);
+	}
+
+	public int getHeight() {
+		return 1+(this.maxY - this.minY);
+	}
+
+	public int getLength() {
+		return 1+(this.maxZ - this.minZ);
+	}
+
+	public int getArea() {
+		return getWidth() * getLength();
+	}
+
 
 	public int getMinX() {
 		return minX;

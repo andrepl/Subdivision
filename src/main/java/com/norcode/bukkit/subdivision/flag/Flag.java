@@ -2,9 +2,11 @@ package com.norcode.bukkit.subdivision.flag;
 
 import com.norcode.bukkit.subdivision.SubdivisionPlugin;
 import com.norcode.bukkit.subdivision.flag.perm.BuildingFlag;
+import com.norcode.bukkit.subdivision.flag.perm.ButtonsFlag;
 import com.norcode.bukkit.subdivision.flag.perm.ContainersFlag;
 import com.norcode.bukkit.subdivision.flag.perm.FarmingFlag;
 import com.norcode.bukkit.subdivision.flag.perm.PVPFlag;
+import com.norcode.bukkit.subdivision.flag.prot.ExplosionFlag;
 import com.norcode.bukkit.subdivision.flag.prot.FireFlag;
 import com.norcode.bukkit.subdivision.flag.prot.MobSpawningFlag;
 import com.norcode.bukkit.subdivision.flag.prot.PistonFlag;
@@ -57,11 +59,14 @@ public abstract class Flag<T> {
 		register(PVPFlag.flag);
 		register(ContainersFlag.flag);
 		register(BuildingFlag.flag);
+		register(ButtonsFlag.flag);
 		register(FarmingFlag.flag);
 		register(PistonFlag.flag);
 		register(MobSpawningFlag.flag);
 		register(FireFlag.flag);
+		register(ExplosionFlag.flag);
 		// enable all registered flags.
+
 		for (Flag f: registry.values()) {
 			f.onEnable(subdivisionPlugin);
 		}

@@ -5,13 +5,11 @@ import com.norcode.bukkit.subdivision.SubdivisionPlugin;
 import com.norcode.bukkit.subdivision.flag.Flag;
 import com.norcode.bukkit.subdivision.region.GlobalRegion;
 import com.norcode.bukkit.subdivision.region.Region;
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -22,6 +20,7 @@ public class RegionCommand extends BaseCommand {
 		registerSubcommand(new RegionInfoCommand(plugin));
 		registerSubcommand(new RegionCreateCommand(plugin));
 		registerSubcommand(new RegionSetCommand(plugin));
+		registerSubcommand(new RegionSaveCommand(plugin));
 		plugin.getServer().getPluginCommand("region").setExecutor(this);
 	}
 

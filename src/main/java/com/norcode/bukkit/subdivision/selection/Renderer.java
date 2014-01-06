@@ -38,6 +38,10 @@ public class Renderer implements Runnable {
 	}
 
 	public void draw(SelectionVisualization viz) {
+		if (viz == null) {
+			clear();
+			return;
+		}
 		switch (state) {
 			case CLEARED:
 				working = viz;

@@ -7,14 +7,14 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 
-public class BoundsWireframe {
+public class CuboidWireframe {
 
-	public int[] xPoints = new int[0];
-	public int[] yPoints = new int[0];
-	public int[] zPoints = new int[0];
-	private Bounds bounds;
+	protected int[] xPoints = new int[0];
+	protected int[] yPoints = new int[0];
+	protected int[] zPoints = new int[0];
+	protected Bounds bounds;
 
-	public BoundsWireframe(Bounds bounds) {
+	public CuboidWireframe(Bounds bounds) {
 		this.bounds = bounds;
 		int width = (int) bounds.getWidth() + 1;
 		int height = (int) bounds.getHeight() + 1;
@@ -43,28 +43,28 @@ public class BoundsWireframe {
 		'x2,y1,z1']
 		 */
 			case 0:
-				SubdivisionPlugin.debug("Rendering Corner 1");
+//				SubdivisionPlugin.debug("Rendering Corner 1");
 				return new Point3D(bounds.getX1(), bounds.getY1(), bounds.getZ1());
 			case 1:
-				SubdivisionPlugin.debug("Rendering Corner 2");
+//				SubdivisionPlugin.debug("Rendering Corner 2");
 				return new Point3D(bounds.getX2(), bounds.getY2(), bounds.getZ2());
 			case 2:
-				SubdivisionPlugin.debug("Rendering Corner 3");
+//				SubdivisionPlugin.debug("Rendering Corner 3");
 				return new Point3D(bounds.getX1(), bounds.getY1(), bounds.getZ2());
 			case 3:
-				SubdivisionPlugin.debug("Rendering Corner 4");
+//				SubdivisionPlugin.debug("Rendering Corner 4");
 				return new Point3D(bounds.getX2(), bounds.getY2(), bounds.getZ1());
 			case 4:
-				SubdivisionPlugin.debug("Rendering Corner 5");
+//				SubdivisionPlugin.debug("Rendering Corner 5");
 				return new Point3D(bounds.getX1(), bounds.getY2(), bounds.getZ1());
 			case 5:
-				SubdivisionPlugin.debug("Rendering Corner 6");
+//				SubdivisionPlugin.debug("Rendering Corner 6");
 				return new Point3D(bounds.getX2(), bounds.getY1(), bounds.getZ2());
 			case 6:
-				SubdivisionPlugin.debug("Rendering Corner 7");
+//				SubdivisionPlugin.debug("Rendering Corner 7");
 				return new Point3D(bounds.getX1(), bounds.getY2(), bounds.getZ2());
 			case 7:
-				SubdivisionPlugin.debug("Rendering Corner 8");
+//				SubdivisionPlugin.debug("Rendering Corner 8");
 				return new Point3D(bounds.getX2(), bounds.getY1(), bounds.getZ1());
 			default:
 				int lineStep = i-8;
@@ -152,7 +152,7 @@ public class BoundsWireframe {
 		}
 	}
 
-	private int[] toPointArray(String s, int x) {
+	protected int[] toPointArray(String s, int x) {
 		char[] chars = s.toCharArray();
 		int[] points = new int[StringUtils.countMatches(s, "-")];
 		int ctr = 0;
@@ -184,7 +184,7 @@ public class BoundsWireframe {
 		return points;
 	}
 
-	private String drawLine(int length) {
+	protected String drawLine(int length) {
 		if (length == 35) {
 			int i=1;
 		}
@@ -224,5 +224,13 @@ public class BoundsWireframe {
 
 		String gap = StringUtils.repeat(" ", (length-pts)/(pts-1));
 		return StringUtils.repeat("-" + gap, pts).trim();
+	}
+
+	public static CuboidWireframe fromSelection(CuboidSelection selection) {
+		if (selection instanceof VerticalCuboidSelection) {
+			return new VerticalCuboidWireframe(selection.getBounds());
+		} else {
+			return new CuboidWireframe(selection.getBounds());
+		}
 	}
 }

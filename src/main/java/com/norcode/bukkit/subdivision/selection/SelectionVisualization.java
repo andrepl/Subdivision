@@ -1,8 +1,6 @@
 package com.norcode.bukkit.subdivision.selection;
 
 import com.norcode.bukkit.subdivision.SubdivisionPlugin;
-import com.norcode.bukkit.subdivision.region.CuboidSelection;
-import com.norcode.bukkit.subdivision.rtree.Bounds;
 import com.norcode.bukkit.subdivision.rtree.Point3D;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -11,42 +9,53 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.material.MaterialData;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+public class SelectionVisualization {
 
-public class SelectionVisualization extends BoundsWireframe {
-
+	private CuboidWireframe wireframe;
 	private MaterialData blockType;
 	private SubdivisionPlugin plugin;
 	private Player player;
 	private World world;
-
+	private CuboidSelection selection;
+	private Point3D selP1;
+	private Point3D selP2;
 	private int drawStep = 0;
 
-	public SelectionVisualization(SubdivisionPlugin plugin, Player player, World world, Bounds bounds) {
-		super(bounds);
+	private SelectionVisualization(SubdivisionPlugin plugin, Player player, World world, CuboidSelection selection) {
 		this.plugin = plugin;
 		this.player = player;
 		this.world = world;
-
+		this.wireframe = CuboidWireframe.fromSelection(selection);
+		Location p1 = selection.getP1();
+		selP1 = p1 == null ? null : new Point3D(p1.getBlockX(), p1.getBlockY(), p1.getBlockZ());
+		Location p2 = selection.getP2();
+		selP2 = p2 == null ? null : new Point3D(p2.getBlockX(), p2.getBlockY(), p2.getBlockZ());
 	}
 
 	public boolean draw() {
-		Point3D blk = step(drawStep++);
+
+		Point3D blk = wireframe.step(drawStep++);
 		if (blk == null) {
 			drawStep --;
 			return false;
 		}
+
 		if (drawStep <= 8) {
-			this.player.sendBlockChange(new Location(world, (int) blk.getX(), (int) blk.getY(), (int) blk.getZ()), Material.GLOWSTONE, (byte) 0);
+			Material mat = Material.GLOWSTONE;
+			if (blk.equals(selP1)) {
+				mat = Material.DIAMOND_BLOCK;
+			} else if (blk.equals(selP2)) {
+				mat = Material.EMERALD_BLOCK;
+			}
+			this.player.sendBlockChange(new Location(world, (int) blk.getX(), (int) blk.getY(), (int) blk.getZ()), mat, (byte) 0);
 		} else {
-			this.player.sendBlockChange(new Location(world, (int) blk.getX(), (int) blk.getY(), (int) blk.getZ()), Material.STAINED_GLASS, (byte) 4);
+			this.player.sendBlockChange(new Location(world, (int) blk.getX(), (int) blk.getY(), (int) blk.getZ()), Material.STAINED_GLASS, (byte) 0);
 		}
 		return true;
 	}
 
 	public boolean undraw() {
-		Point3D blk = step(--drawStep);
+		Point3D blk = wireframe.step(--drawStep);
 		if (blk == null) {
 			drawStep ++;
 			return false;
@@ -57,4 +66,11 @@ public class SelectionVisualization extends BoundsWireframe {
 		return true;
 	}
 
+	public static SelectionVisualization create(SubdivisionPlugin plugin, Player player) {
+		try {
+			return new SelectionVisualization(plugin, player, player.getWorld(), plugin.getPlayerSelection(player));
+		} catch (NullPointerException ex) {
+			return null;
+		}
+	}
 }

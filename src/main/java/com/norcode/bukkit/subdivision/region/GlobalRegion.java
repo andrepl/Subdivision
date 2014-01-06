@@ -47,7 +47,7 @@ public class GlobalRegion extends Region {
 	}
 
 	public Region removeRegion(Region region) {
-		return null;
+		return rtree.remove(region);
 	}
 
 	public List<Region> search(Bounds bounds) {

@@ -107,6 +107,9 @@ public class BaseCommand implements TabExecutor {
 
 	List<String> onTabComplete(CommandSender sender, String label, LinkedList<String> args) {
 		if (requiredPermission == null || sender.hasPermission(requiredPermission)) {
+			if (args.size() == 0) {
+				return null;
+			}
 			Map<String, BaseCommand> subs = filterByPermission(sender, subcommands);
 			String partial = args.peek().toLowerCase();
 			BaseCommand sub;

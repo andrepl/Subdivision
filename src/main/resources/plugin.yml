@@ -11,4 +11,6 @@ commands:
     description: root subdivision command
   debug:
     aliases: [dbg]
+  select:
+    aliases: [wand]
 
