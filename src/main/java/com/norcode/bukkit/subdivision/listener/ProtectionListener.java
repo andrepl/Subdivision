@@ -1,13 +1,13 @@
 package com.norcode.bukkit.subdivision.listener;
 
 import com.norcode.bukkit.subdivision.SubdivisionPlugin;
-import com.norcode.bukkit.subdivision.flag.perm.ButtonsFlag;
-import com.norcode.bukkit.subdivision.flag.prot.ExplosionFlag;
-import com.norcode.bukkit.subdivision.flag.prot.PistonFlag;
 import com.norcode.bukkit.subdivision.flag.perm.BuildingFlag;
+import com.norcode.bukkit.subdivision.flag.perm.ButtonsFlag;
 import com.norcode.bukkit.subdivision.flag.perm.ContainersFlag;
 import com.norcode.bukkit.subdivision.flag.perm.FarmingFlag;
 import com.norcode.bukkit.subdivision.flag.perm.PVPFlag;
+import com.norcode.bukkit.subdivision.flag.prot.ExplosionFlag;
+import com.norcode.bukkit.subdivision.flag.prot.PistonFlag;
 import com.norcode.bukkit.subdivision.flag.prot.RegionProtectionState;
 import com.norcode.bukkit.subdivision.region.GlobalRegion;
 import com.norcode.bukkit.subdivision.region.Region;
@@ -16,9 +16,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -33,18 +31,14 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.vehicle.VehicleCreateEvent;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
@@ -271,7 +265,7 @@ public class ProtectionListener implements Listener {
 				if (e instanceof Player && !e.equals(thrower)) {
 					Region r = plugin.getRegionManager().getRegion(e.getLocation());
 					if (!r.allows(PVPFlag.flag, (Player) thrower)) {
-						it.remove();
+						event.setIntensity(e, 0);
 					}
 				}
 			}

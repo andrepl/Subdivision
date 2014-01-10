@@ -1,5 +1,4 @@
 package com.norcode.bukkit.subdivision.listener;
-
 import com.norcode.bukkit.subdivision.MetaKey;
 import com.norcode.bukkit.subdivision.SubdivisionPlugin;
 import com.norcode.bukkit.subdivision.datastore.DatastoreException;
@@ -29,6 +28,12 @@ public class PlayerListener implements Listener {
 		this.plugin = plugin;
 		this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
+
+	@EventHandler
+	public void onMove(PlayerMoveEvent event) {
+		plugin.getLogger().info("OnMove");
+	}
+
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
@@ -68,7 +73,7 @@ public class PlayerListener implements Listener {
 					region.addOwner(event.getPlayer());
 					plugin.getRegionManager().add(region);
 					try {
-						plugin.getDatastore().saveRegion(region.getRegionData());
+						plugin.getStore().saveRegion(region.getRegionData());
 					} catch (DatastoreException e) {
 						event.getPlayer().sendMessage("Something went wrong!");
 						return;

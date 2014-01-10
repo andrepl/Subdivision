@@ -65,7 +65,7 @@ public class RegionSaveCommand extends BaseCommand {
 		region.adjustBounds(selection.getBounds());
 		plugin.getRegionManager().add(plugin.getRegionManager().remove(region));
 		try {
-			plugin.getDatastore().saveRegion(region.getRegionData());
+			plugin.getStore().saveRegion(region.getRegionData());
 		} catch (DatastoreException e) {
 			e.printStackTrace();
 		}

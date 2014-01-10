@@ -1,6 +1,6 @@
 package com.norcode.bukkit.subdivision.command;
 
-import com.norcode.bukkit.playerid.PlayerID;
+import com.norcode.bukkit.metalcore.MetalCorePlugin;
 import com.norcode.bukkit.subdivision.SubdivisionPlugin;
 import com.norcode.bukkit.subdivision.flag.Flag;
 import com.norcode.bukkit.subdivision.region.GlobalRegion;
@@ -56,7 +56,7 @@ public class RegionCommand extends BaseCommand {
 		Iterator<UUID> it = ownerIds.iterator();
 		String s = "";
 		while (it.hasNext()) {
-			s += PlayerID.getPlayerName(it.next());
+			s += MetalCorePlugin.getDatastore().getPlayerName(it.next());
 			if (it.hasNext()) {
 				s += ", ";
 			}

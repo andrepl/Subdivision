@@ -1,7 +1,6 @@
 package com.norcode.bukkit.subdivision.listener;
 
 
-import com.norcode.bukkit.playerid.PlayerID;
 import com.norcode.bukkit.subdivision.MetaKey;
 import com.norcode.bukkit.subdivision.SubdivisionPlugin;
 import com.norcode.bukkit.subdivision.datastore.DatastoreException;
@@ -59,9 +58,8 @@ public class SelectionListener implements Listener {
 			}
 			if (!seenHelp) {
 				player.setMetadata(MetaKey.WAND_HELP_SEEN, new FixedMetadataValue(plugin, now));
-				ConfigurationSection cfg = PlayerID.getPlayerData(plugin.getName(), player);
+				ConfigurationSection cfg = plugin.getPlayerData(player);
 				cfg.set(MetaKey.WAND_HELP_SEEN, now);
-				PlayerID.savePlayerData(plugin.getName(), player, cfg);
 				player.sendMessage("This is the " + ChatColor.GOLD + "Selection Wand" + ChatColor.RESET + ".  Left or Right click while sneaking to set one corner of your current selection.  If you already have a selection made, left or right click without sneaking to expand or contract the selection in the direction youre facing.");
 			}
 			CuboidSelection selection = plugin.getPlayerSelection(player);
@@ -86,7 +84,7 @@ public class SelectionListener implements Listener {
 
 	@EventHandler
 	private void onPlayerJoin(PlayerJoinEvent event) {
-		ConfigurationSection playerData = PlayerID.getPlayerData(plugin.getName(), event.getPlayer());
+		ConfigurationSection playerData = plugin.getPlayerData(event.getPlayer());
 		if (!event.getPlayer().hasMetadata(MetaKey.WAND_HELP_SEEN)) {
 			if (playerData.contains(MetaKey.WAND_HELP_SEEN)) {
 				event.getPlayer().setMetadata(MetaKey.WAND_HELP_SEEN, new FixedMetadataValue(plugin, playerData.getLong(MetaKey.WAND_HELP_SEEN)));
@@ -242,7 +240,7 @@ public class SelectionListener implements Listener {
 					plugin.getRegionManager().add(plugin.getRegionManager().remove(r));
 					plugin.setClaimAllowance(event.getPlayer(), avail-cost);
 					try {
-						plugin.getDatastore().saveRegion(r.getRegionData());
+						plugin.getStore().saveRegion(r.getRegionData());
 					} catch (DatastoreException e) {
 						e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
 					}

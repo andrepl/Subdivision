@@ -57,7 +57,7 @@ public class RegionCreateCommand extends BaseCommand {
 		region.addOwner(player);
 		plugin.getRegionManager().add(region);
 		try {
-			plugin.getDatastore().saveRegion(region.getRegionData());
+			plugin.getStore().saveRegion(region.getRegionData());
 		} catch (DatastoreException e) {
 			e.printStackTrace();
 		}

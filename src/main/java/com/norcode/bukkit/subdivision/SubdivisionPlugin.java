@@ -1,6 +1,6 @@
 package com.norcode.bukkit.subdivision;
 
-import com.norcode.bukkit.playerid.PlayerID;
+import com.norcode.bukkit.metalcore.MetalCorePlugin;
 import com.norcode.bukkit.subdivision.command.DebugCommand;
 import com.norcode.bukkit.subdivision.command.RegionCommand;
 import com.norcode.bukkit.subdivision.command.SelectCommand;
@@ -21,13 +21,12 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 import java.util.UUID;
 
-public class SubdivisionPlugin extends JavaPlugin {
+public class SubdivisionPlugin extends MetalCorePlugin {
 
 	private Datastore datastore;
 	private RegionManager regionManager;
@@ -112,7 +111,7 @@ public class SubdivisionPlugin extends JavaPlugin {
 	}
 
 	public Region getRegion(Player player) {
-		return (Region) player.getMetadata("subdivision-active-region").get(0).value();
+		return (Region) player.getMetadata(MetaKey.ACTIVE_REGION).get(0).value();
 	}
 
 	public RegionManager getRegionManager() {
@@ -143,7 +142,7 @@ public class SubdivisionPlugin extends JavaPlugin {
 	public Region getFirstClaim(Player p) {
 		UUID regionId = null;
 		if (!p.hasMetadata(MetaKey.FIRST_CLAIM_ID)) {
-			ConfigurationSection cfg = PlayerID.getPlayerData(getName(), p);
+			ConfigurationSection cfg = getPlayerData(p);
 			String regionIdStr = cfg.getString(MetaKey.FIRST_CLAIM_ID);
 			if (regionIdStr != null) {
 				regionId = UUID.fromString(regionIdStr);
@@ -159,14 +158,13 @@ public class SubdivisionPlugin extends JavaPlugin {
 
 	public void setFirstClaim(Player player, UUID regionId) {
 		player.setMetadata(MetaKey.FIRST_CLAIM_ID, new FixedMetadataValue(this, regionId));
-		ConfigurationSection cfg = PlayerID.getPlayerData(getName(), player);
+		ConfigurationSection cfg = getPlayerData(player);
 		cfg.set(MetaKey.FIRST_CLAIM_ID, regionId);
-		PlayerID.savePlayerData(getName(), player, cfg);
 	}
 
 	public int getClaimAllowance(Player p) {
 		if (!p.hasMetadata(MetaKey.CLAIM_ALLOWANCE)) {
-			ConfigurationSection cfg = PlayerID.getPlayerData(getName(), p);
+			ConfigurationSection cfg = getPlayerData(p);
 			int amt = cfg.getInt(MetaKey.CLAIM_ALLOWANCE, 225);
 			p.setMetadata(MetaKey.CLAIM_ALLOWANCE, new FixedMetadataValue(this, amt));
 		}
@@ -175,16 +173,16 @@ public class SubdivisionPlugin extends JavaPlugin {
 
 	public void setClaimAllowance(Player p, int amt) {
 		p.setMetadata(MetaKey.CLAIM_ALLOWANCE, new FixedMetadataValue(this, amt));
-		ConfigurationSection cfg = PlayerID.getPlayerData(getName(), p);
+		ConfigurationSection cfg = getPlayerData(p);
 		cfg.set(MetaKey.CLAIM_ALLOWANCE, amt);
-		PlayerID.savePlayerData(getName(), p, cfg);
+
 	}
 
 	public boolean hasFirstClaim(Player p) {
 		return getFirstClaim(p) != null;
 	}
 
-	public Datastore getDatastore() {
+	public Datastore getStore() {
 		return datastore;
 	}
 

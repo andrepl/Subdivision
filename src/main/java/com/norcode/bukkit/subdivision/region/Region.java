@@ -175,7 +175,7 @@ public class Region implements Bounded {
 		flags.put(flag, value);
 		plugin.getRegionManager().invalidateCache(this);
 		try {
-			plugin.getDatastore().saveRegion(getRegionData());
+			plugin.getStore().saveRegion(getRegionData());
 		} catch (DatastoreException e) {
 			e.printStackTrace();
 		}
